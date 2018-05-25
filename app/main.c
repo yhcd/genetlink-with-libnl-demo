@@ -14,6 +14,10 @@ static int recv_genl(struct nlmsghdr *nlh)
 {
 	char *message;
 	uint32_t data;
+        int len1;
+        int len2;
+	void* data1=NULL;
+	void* data2=NULL;
 	struct nlattr *attrs[TEST_ATTR_MAX + 1];
 
 	if (genlmsg_parse(nlh, 0, attrs, TEST_ATTR_MAX, NULL)) {
@@ -27,14 +31,22 @@ static int recv_genl(struct nlmsghdr *nlh)
 	}
 
 	if (attrs[TEST_ATTR_MESSAGE]) {
+		len1= nla_len(attrs[TEST_ATTR_MESSAGE]);
+		data1=nla_data(attrs[TEST_ATTR_MESSAGE]);
 		message = nla_get_string(attrs[TEST_ATTR_MESSAGE]);
 	}
 
 	if (attrs[TEST_ATTR_DATA]) {
+		len2= nla_len(attrs[TEST_ATTR_DATA]);
+		data2=nla_data(attrs[TEST_ATTR_DATA]);
 		data = nla_get_u32(attrs[TEST_ATTR_DATA]);
 	}
 
 	LOG_INFO("receive from kernel: message=%s, data=%u.", message, data);
+	if (data1)
+		LOG_INFO("receive from kernel: len1=%d, data1=%s.", len1, data1);
+	if (data2)
+		LOG_INFO("receive from kernel: len2=%d, data2=%d.", len2, *(uint32_t*)(data2));
 
 	return NL_OK;
 }
